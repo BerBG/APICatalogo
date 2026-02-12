@@ -46,11 +46,11 @@ jobs:
         run: dotnet test "${{ env.SOLUTION }}" --no-build -c ${{ matrix.configuration }} --verbosity normal
 
       - name: Publish (push only)
-        if: github.event_name == 'push'
-        run: dotnet publish "${{ env.PROJECT }}" -c Release -o ./publish --no-build
+        if: github.event_name == 'push' && matrix.configuration == 'Release'
+        run: dotnet publish "${{ env.PROJECT }}" -c Release -o ./publish
 
       - name: Upload publish artifact
-        if: github.event_name == 'push'
+        if: github.event_name == 'push' && matrix.configuration == 'Release'
         uses: actions/upload-artifact@v4
         with:
           name: publish
