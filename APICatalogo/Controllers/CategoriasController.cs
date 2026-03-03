@@ -18,17 +18,17 @@ namespace APICatalogo.Controllers
         }
 
         [HttpGet("produtos")]
-        public ActionResult<IEnumerable<Categoria>> GetCategoriasProdutos()
+        public async Task<ActionResult<IEnumerable<Categoria>>> GetCategoriasProdutos()
         {
-            return _context.Categorias.Include(p => p.Produtos).ToList();
+            return await _context.Categorias.Include(p => p.Produtos).ToListAsync();
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<Categoria>> Get()
+        public async Task<ActionResult<IEnumerable<Categoria>>> Get()
         {
             try
             {
-                var categoria = _context.Categorias.AsNoTracking().ToList();
+                var categoria = await _context.Categorias.AsNoTracking().ToListAsync();
 
                 if (categoria == null)
                 {
@@ -45,12 +45,11 @@ namespace APICatalogo.Controllers
         }
 
         [HttpGet("{id:int}", Name = "ObterCategoria")]
-        public ActionResult<Categoria> Get(int id)
+        public async Task<ActionResult<Categoria>> Get(int id)
         {
             try
             {
-                var categoria = _context.Categorias.FirstOrDefault(p => p.CategoriaId == id);
-
+                var categoria = await _context.Categorias.FirstOrDefaultAsync(p => p.CategoriaId == id);
                 if (categoria == null)
                 {
                     return NotFound($"Categoria com id {id} não encontrada...");
@@ -66,22 +65,22 @@ namespace APICatalogo.Controllers
         }
 
         [HttpPost]
-        public ActionResult Post(Categoria categoria)
+        public async Task<ActionResult<Categoria>> Post(Categoria categoria)
         {
             if (categoria is null)
             {
                 return BadRequest("Dados inválidos.");
             }
 
-            _context.Categorias.Add(categoria);
-            _context.SaveChanges();
+            await _context.Categorias.AddAsync(categoria);
+            await _context.SaveChangesAsync();
 
             return new CreatedAtRouteResult("ObterCategoria",
                 new { id = categoria.CategoriaId }, categoria);
         }
 
         [HttpPut("{id:int}")]
-        public ActionResult Put(int id, Categoria categoria)
+        public async Task<ActionResult<Categoria>> Put(int id, Categoria categoria)
         {
             if (id != categoria.CategoriaId)
             {
@@ -89,15 +88,15 @@ namespace APICatalogo.Controllers
             }
 
             _context.Entry(categoria).State = EntityState.Modified;
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return Ok(categoria);
         }
 
         [HttpDelete("{id:int}")]
-        public ActionResult<Categoria> Delete(int id)
+        public async Task<ActionResult<Categoria>> Delete(int id)
         {
-            var categoria = _context.Categorias.FirstOrDefault(p => p.CategoriaId == id);
+            var categoria = await _context.Categorias.FirstOrDefaultAsync(p => p.CategoriaId == id);
 
             if (categoria == null)
             {
@@ -105,7 +104,7 @@ namespace APICatalogo.Controllers
             }
 
             _context.Categorias.Remove(categoria);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return Ok(categoria);
         }
