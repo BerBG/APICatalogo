@@ -14,6 +14,9 @@ builder.Services.AddOpenApi();
 
 string sqlServerConnection = builder.Configuration.GetConnectionString("DefaultConnection");
 
+var valor1 = builder.Configuration["chave"];
+var valor2 = builder.Configuration["secao1:chave2"];
+
 builder.Services.AddDbContext<APICatalogoContext>(options =>
     options.UseSqlServer(sqlServerConnection));
 
