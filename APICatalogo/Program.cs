@@ -1,5 +1,6 @@
 using APICatalogo.Context;
 using APICatalogo.Extensions;
+using APICatalogo.Filters;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 
@@ -20,6 +21,8 @@ var valor2 = builder.Configuration["secao1:chave2"];
 
 builder.Services.AddDbContext<APICatalogoContext>(options =>
     options.UseSqlServer(sqlServerConnection));
+
+builder.Services.AddScoped<ApiLoggingFilter>();
 
 var app = builder.Build();
 
