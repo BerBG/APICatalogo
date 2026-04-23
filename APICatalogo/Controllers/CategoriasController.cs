@@ -11,24 +11,12 @@ namespace APICatalogo.Controllers
     [ApiController]
     public class CategoriasController : ControllerBase
     {
-        private readonly APICatalogoContext _context;
-        private readonly IConfiguration _configuration;
+        private readonly ILogger _logger;
 
-        public CategoriasController(APICatalogoContext context, IConfiguration configuration)
+        public CategoriasController(APICatalogoContext context, ILogger logger)
         {
             _context = context;
-            _configuration = configuration;
-        }
-
-        [HttpGet("LerArquivoConfiguracao")]
-        public string GetValores()
-        {
-            var valor1 = _configuration ["chave1"];
-            var valor2 = _configuration["chave2"];
-
-            var secao1 = _configuration["secao1:chave1"];
-
-            return $"Chave1 = {valor1} \nChave2 = {valor2} \nSecao1 = Chave2 = {secao1}";
+            _logger = logger;
         }
 
         [HttpGet("produtos")]
@@ -41,42 +29,29 @@ namespace APICatalogo.Controllers
         [ServiceFilter(typeof(ApiLoggingFilter))]
         public async Task<ActionResult<IEnumerable<Categoria>>> Get()
         {
-            try
-            {
-                var categoria = await _context.Categorias.AsNoTracking().ToListAsync();
+            var categoria = await _context.Categorias.AsNoTracking().ToListAsync();
 
-                if (categoria == null)
-                {
-                    return NotFound("Nenhuma categoria encontrada.");
-                }
-
-                return Ok(categoria);
-            }
-            catch (Exception)
+            if (categoria == null)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    "Erro interno no servidor. Contate o administrador.");
+                _logger.LogWarning("Nenhuma categoria encontrada.");
+                return NotFound("Nenhuma categoria encontrada.");
             }
+
+            return Ok(categoria);
         }
 
         [HttpGet("{id:int}", Name = "ObterCategoria")]
         public async Task<ActionResult<Categoria>> Get(int id)
         {
-            try
-            {
-                var categoria = await _context.Categorias.FirstOrDefaultAsync(p => p.CategoriaId == id);
-                if (categoria == null)
-                {
-                    return NotFound($"Categoria com id {id} não encontrada...");
-                }
+            var categoria = await _context.Categorias.FirstOrDefaultAsync(p => p.CategoriaId == id);
 
-                return Ok(categoria);
-            }
-            catch (Exception)
+            if (categoria == null)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                        "Erro interno no servidor. Contate o administrador.");
+                _logger.LogWarning($"Categoria com id={id} não encontrada.");
+                return NotFound($"Categoria com id {id} não encontrada...");
             }
+
+            return Ok(categoria);
         }
 
         [HttpPost]
@@ -84,6 +59,7 @@ namespace APICatalogo.Controllers
         {
             if (categoria is null)
             {
+                _logger.LogWarning($"Dados inválidos...");
                 return BadRequest("Dados inválidos.");
             }
 
@@ -99,6 +75,7 @@ namespace APICatalogo.Controllers
         {
             if (id != categoria.CategoriaId)
             {
+                _logger.LogWarning("Dados inválidos.");
                 return BadRequest("Dados inválidos.");
             }
 
@@ -115,6 +92,7 @@ namespace APICatalogo.Controllers
 
             if (categoria == null)
             {
+                _logger.LogWarning($"Categoria com id={id} não encontrada.");
                 return NotFound($"Categoria com id {id} não encontrada.");
             }
 
