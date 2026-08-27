@@ -16,9 +16,9 @@ namespace APICatalogo.Filters
         {
             _logger.LogError(context.Exception, "Ocorreu uma exceção não tratada: Status Code 500");
 
-            context.Result = new ObjectResult("Ocorreu um problema ao tratar a sua solicitação: Status Code 500");
+            context.Result = new ObjectResult("Ocorreu um problema ao tratar a sua solicitação: Status Code 500")
             {
-                StatusCode = StatusCodes.Status500InternalServerError,
+                StatusCode = StatusCodes.Status500InternalServerError
             };
         }
     }

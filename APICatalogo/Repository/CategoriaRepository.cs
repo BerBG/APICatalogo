@@ -15,12 +15,12 @@ namespace APICatalogo.Repository
 
         public IEnumerable<Categoria> GetCategorias()
         {
-            return GetCategorias = _context.Categorias.ToList();
+            return _context.Categorias.ToList();
         }
 
         public Categoria GetCategoria(int id)
         {
-            return GetCategoria = _context.Categorias.FirstOrDefault(c => c.CategoriaId == id);
+            return _context.Categorias.FirstOrDefault(c => c.CategoriaId == id);
         }
 
         public Categoria Create(Categoria categoria)
@@ -49,10 +49,8 @@ namespace APICatalogo.Repository
             return categoria;
         }
 
-        public Categoria Delete(int id)
+        public Categoria Delete(Categoria categoria)
         {
-            var categoria = _context.Categorias.Find(id);
-
             if (categoria is null)
             {
                 throw new ArgumentNullException(nameof(categoria));

@@ -361,3 +361,12 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# APICatalogo - arquivos locais (nao versionar)
+Teste_Log.txt
+**/Logs/
+*.txt.log
+
+# Config local com segredos (opcional - use User Secrets em dev)
+appsettings.Local.json
+secrets.json
