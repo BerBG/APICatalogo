@@ -1,0 +1,9 @@
+﻿using APICatalogo.Models;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
+
+namespace APICatalogo.Repository
+{
+    public interface ICategoriaRepository : IRepository<Categoria>
+    {
+    }
+}

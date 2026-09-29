@@ -1,4 +1,5 @@
 ﻿using APICatalogo.Context;
+using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
 namespace APICatalogo.Repository
@@ -14,7 +15,7 @@ namespace APICatalogo.Repository
 
         public IEnumerable<T> GetAll()
         {
-            return _context.Set<T>().ToList();
+            return _context.Set<T>().AsNoTracking().ToList();
         }
 
         public T? Get(Expression<Func<T, bool>> predicate)
