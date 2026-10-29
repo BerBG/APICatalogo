@@ -1,7 +1,9 @@
 ﻿using APICatalogo.Context;
+using APICatalogo.DTOs;
 using APICatalogo.Models;
 using APICatalogo.Repositories;
 using APICatalogo.Repository;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
@@ -14,14 +16,16 @@ namespace APICatalogo.Controllers
     public class ProdutosController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
 
-        public ProdutosController(IUnitOfWork unitOfWork)
+        public ProdutosController(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
 
         [HttpGet("produtos/{id}")]
-        public ActionResult<IEnumerable<Produto>> GetProdutosCategoria(int id)
+        public ActionResult<IEnumerable<ProdutoDTO>> GetProdutosCategoria(int id)
         {
             var produtos = _unitOfWork.ProdutoRepository.GetProdutosPorCategoria(id);
 
@@ -34,7 +38,7 @@ namespace APICatalogo.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<Produto>> Get()
+        public ActionResult<IEnumerable<ProdutoDTO>> Get()
         {
             var produtos = _unitOfWork.ProdutoRepository.GetAll();
             if (produtos is null)
@@ -42,11 +46,13 @@ namespace APICatalogo.Controllers
                 return NotFound();
             }
 
+            var produtosDto = _mapper.Map<IEnumerable<ProdutoDTO>>(produtos);
+
             return Ok(produtos);
         }
 
         [HttpGet("{id:int}", Name = "ObterProduto")]
-        public ActionResult<Produto> Get(int id)
+        public ActionResult<ProdutoDTO> Get(int id)
         {
             var produto = _unitOfWork.ProdutoRepository.Get(p => p.ProdutoId == id);
 
@@ -55,40 +61,50 @@ namespace APICatalogo.Controllers
                 return NotFound("Produto não encontrado");
             }
 
-            return Ok(produto);
+            var produtoDto = _mapper.Map<IEnumerable<ProdutoDTO>>(produto);
+
+            return Ok(produtoDto);
         }
 
         [HttpPost]
-        public ActionResult<Produto> Post(Produto produto)
+        public ActionResult<ProdutoDTO> Post(ProdutoDTO produtoDto)
         {
-            if (produto == null)
+            if (produtoDto == null)
             {
                 return BadRequest();
             }
+
+            var produto = _mapper.Map<Produto>(produtoDto);
 
             var novoProduto = _unitOfWork.ProdutoRepository.Create(produto);
             _unitOfWork.Commit();
 
+            var novoProdutoDto = _mapper.Map<ProdutoDTO>(novoProduto);
+
             return new CreatedAtRouteResult("ObterProduto",
-                new { id = novoProduto.ProdutoId }, novoProduto);
+                new { id = novoProdutoDto.ProdutoId }, novoProdutoDto);
         }
 
         [HttpPut("{id:int}")]
-        public ActionResult<Produto> Put(int id, Produto produto)
+        public ActionResult<ProdutoDTO> Put(int id, ProdutoDTO produtoDto)
         {
-            if (id != produto.ProdutoId)
+            if (id != produtoDto.ProdutoId)
             {
                 return BadRequest();
             }
 
+            var produto = _mapper.Map<Produto>(produtoDto);
+
             var produtoAtualizado = _unitOfWork.ProdutoRepository.Update(produto);
             _unitOfWork.Commit();
 
-            return Ok(produtoAtualizado);
+            var produtoAtualizadoDto = _mapper.Map<ProdutoDTO>(produtoAtualizado);
+
+            return Ok(produtoAtualizadoDto);
         }
 
         [HttpDelete("{id:int}")]
-        public ActionResult<Produto> Delete(int id)
+        public ActionResult<ProdutoDTO> Delete(int id)
         {
             var produto = _unitOfWork.ProdutoRepository.Get(p => p.ProdutoId == id);
 
@@ -99,6 +115,8 @@ namespace APICatalogo.Controllers
 
             var produtoDeletado = _unitOfWork.ProdutoRepository.Delete(produto);
             _unitOfWork.Commit();
+
+            var produtoDeletadoDto = _mapper.Map<ProdutoDTO>(produtoDeletado);
 
             return Ok(produtoDeletado);
         }

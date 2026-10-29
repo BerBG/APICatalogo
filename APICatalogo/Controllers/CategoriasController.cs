@@ -44,7 +44,9 @@ namespace APICatalogo.Controllers
                 return NotFound($"Categoria com id {id} não encontrada...");
             }
 
-            return Ok(categoria.ToCategoriaDTO());
+            var categoriaDto = categoria.ToCategoriaDTO();
+
+            return Ok(categoriaDto);
         }
 
         [HttpPost]
@@ -61,8 +63,10 @@ namespace APICatalogo.Controllers
             var categoriaCriada = _uof.CategoriaRepository.Create(categoria);
             _uof.Commit();
 
+            var novaCategoriaDto = categoriaCriada.ToCategoriaDTO();
+
             return new CreatedAtRouteResult("ObterCategoria",
-                new { id = categoriaCriada.CategoriaId }, categoriaCriada.ToCategoriaDTO());
+                new { id = novaCategoriaDto.CategoriaId }, novaCategoriaDto);
         }
 
         [HttpPut("{id:int}")]
@@ -76,10 +80,12 @@ namespace APICatalogo.Controllers
 
             var categoria = categoriaDto.ToCategoria();
 
-            var categoriaAtualiza = _uof.CategoriaRepository.Update(categoria);
+            var categoriaAtualizada = _uof.CategoriaRepository.Update(categoria);
             _uof.Commit();
 
-            return Ok(categoriaAtualiza.ToCategoriaDTO());
+            var categoriaAtualizadaDto = categoriaAtualizada.ToCategoriaDTO();
+
+            return Ok(categoriaAtualizadaDto);
         }
 
         [HttpDelete("{id:int}")]
@@ -96,7 +102,9 @@ namespace APICatalogo.Controllers
             var categoriaExcluida = _uof.CategoriaRepository.Delete(categoria);
             _uof.Commit();
 
-            return Ok(categoriaExcluida.ToCategoriaDTO());
+            var categoriaEcluida = categoriaExcluida.ToCategoriaDTO();
+
+            return Ok(categoriaEcluida);
         }
     }
 }
