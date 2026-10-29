@@ -1,12 +1,7 @@
-﻿using APICatalogo.Context;
-using APICatalogo.DTOs;
-using APICatalogo.Filters;
-using APICatalogo.Models;
+﻿using APICatalogo.DTOs;
+using APICatalogo.DTOs.Mappings;
 using APICatalogo.Repositories;
-using APICatalogo.Repository;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace APICatalogo.Controllers
 {
@@ -33,19 +28,7 @@ namespace APICatalogo.Controllers
                 return NotFound("Não existem categorias");
             }
 
-            var categoriasDto = new List<CategoriaDTO>();
-
-            foreach (var categoria in categorias)
-            {
-                var categoriaDto = new CategoriaDTO
-                {
-                    CategoriaId = categoria.CategoriaId,
-                    Nome = categoria.Nome,
-                    ImagemUrl = categoria.ImagemUrl
-                };
-                categoriasDto.Add(categoriaDto);
-
-            }
+            var categoriasDto = categorias.ToCategoriaDTOList();
 
             return Ok(categoriasDto);
         }
@@ -61,14 +44,7 @@ namespace APICatalogo.Controllers
                 return NotFound($"Categoria com id {id} não encontrada...");
             }
 
-            var categoriaDto = new CategoriaDTO()
-            {
-                CategoriaId = categoria.CategoriaId,
-                Nome = categoria.Nome,
-                ImagemUrl = categoria.ImagemUrl
-            };
-
-            return Ok(categoriaDto);
+            return Ok(categoria.ToCategoriaDTO());
         }
 
         [HttpPost]
@@ -80,25 +56,13 @@ namespace APICatalogo.Controllers
                 return BadRequest("Dados inválidos.");
             }
 
-            var categoria = new Categoria()
-            {
-                CategoriaId = categoriaDto.CategoriaId,
-                Nome = categoriaDto.Nome,
-                ImagemUrl = categoriaDto.ImagemUrl
-            };
+            var categoria = categoriaDto.ToCategoria();
 
             var categoriaCriada = _uof.CategoriaRepository.Create(categoria);
             _uof.Commit();
 
-            var novaCategoriaDto = new CategoriaDTO()
-            {
-                CategoriaId = categoriaCriada.CategoriaId,
-                Nome = categoriaCriada.Nome,
-                ImagemUrl = categoriaCriada.ImagemUrl
-            };
-
             return new CreatedAtRouteResult("ObterCategoria",
-                new { id = novaCategoriaDto.CategoriaId }, novaCategoriaDto);
+                new { id = categoriaCriada.CategoriaId }, categoriaCriada.ToCategoriaDTO());
         }
 
         [HttpPut("{id:int}")]
@@ -110,24 +74,12 @@ namespace APICatalogo.Controllers
                 return BadRequest("Dados inválidos.");
             }
 
-            var categoria = new Categoria()
-            {
-                CategoriaId = categoriaDto.CategoriaId,
-                Nome = categoriaDto.Nome,
-                ImagemUrl = categoriaDto.ImagemUrl
-            };
+            var categoria = categoriaDto.ToCategoria();
 
             var categoriaAtualiza = _uof.CategoriaRepository.Update(categoria);
             _uof.Commit();
 
-            var categoriaAtualizaDto = new CategoriaDTO()
-            {
-                CategoriaId = categoriaAtualiza.CategoriaId,
-                Nome = categoriaAtualiza.Nome,
-                ImagemUrl = categoriaAtualiza.ImagemUrl
-            };
-
-            return Ok(categoriaAtualizaDto);
+            return Ok(categoriaAtualiza.ToCategoriaDTO());
         }
 
         [HttpDelete("{id:int}")]
@@ -144,14 +96,7 @@ namespace APICatalogo.Controllers
             var categoriaExcluida = _uof.CategoriaRepository.Delete(categoria);
             _uof.Commit();
 
-            var categoriaExcluidaDto = new CategoriaDTO()
-            {
-                CategoriaId = categoriaExcluida.CategoriaId,
-                Nome = categoriaExcluida.Nome,
-                ImagemUrl = categoriaExcluida.ImagemUrl
-            };
-
-            return Ok(categoriaExcluidaDto);
+            return Ok(categoriaExcluida.ToCategoriaDTO());
         }
     }
 }
